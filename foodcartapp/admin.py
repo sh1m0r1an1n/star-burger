@@ -111,21 +111,29 @@ class ProductAdmin(admin.ModelAdmin):
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    fields = ['product', 'quantity', 'get_product_price', 'get_total_price']
-    readonly_fields = ['get_product_price', 'get_total_price']
+    fields = ['product', 'quantity', 'get_fixed_price', 'get_total_price']
+    readonly_fields = ['get_fixed_price', 'get_total_price']
 
-    def get_product_price(self, obj):
-        if obj.product:
-            return f"{obj.product.price} ₽"
+    def get_fixed_price(self, obj):
+        if obj.price:
+            return f"{obj.price} ₽"
         return "—"
-    get_product_price.short_description = 'цена за штуку'
+    get_fixed_price.short_description = 'зафиксированная цена'
 
     def get_total_price(self, obj):
-        if obj.product:
-            total = obj.product.price * obj.quantity
+        if obj.price:
+            total = obj.price * obj.quantity
             return f"{total} ₽"
         return "—"
     get_total_price.short_description = 'общая стоимость'
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+        for instance in instances:
+            if instance.product and not instance.price:
+                instance.price = instance.product.price
+        formset.save()
+        super().save_formset(request, form, formset, change)
 
 
 @admin.register(Order)
