@@ -146,6 +146,7 @@ class OrderAdmin(admin.ModelAdmin):
         'lastname',
         'phonenumber',
         'status',
+        'comment',
         'created_at'
     ]
     list_display_links = ['pk', 'firstname']
@@ -170,6 +171,10 @@ class OrderAdmin(admin.ModelAdmin):
         }),
         ('Статус заказа', {
             'fields': ['status']
+        }),
+        ('Комментарий', {
+            'fields': ['comment'],
+            'classes': ['wide']
         }),
         ('Служебная информация', {
             'fields': ['created_at'],

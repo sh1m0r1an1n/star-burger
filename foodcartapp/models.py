@@ -167,6 +167,11 @@ class Order(models.Model):
         'время создания',
         auto_now_add=True
     )
+    comment = models.TextField(
+        'комментарий',
+        blank=True,
+        help_text='Комментарий к заказу (аллергии, особые пожелания и т.д.)'
+    )
 
     objects = OrderQuerySet.as_manager()
 
