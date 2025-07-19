@@ -7,6 +7,8 @@ from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
 from .models import RestaurantMenuItem
+from .models import Order
+from .models import OrderItem
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -104,3 +106,59 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(ProductCategory)
 class ProductAdmin(admin.ModelAdmin):
     pass
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+    fields = ['product', 'quantity', 'get_product_price', 'get_total_price']
+    readonly_fields = ['get_product_price', 'get_total_price']
+
+    def get_product_price(self, obj):
+        if obj.product:
+            return f"{obj.product.price} ₽"
+        return "—"
+    get_product_price.short_description = 'цена за штуку'
+
+    def get_total_price(self, obj):
+        if obj.product:
+            total = obj.product.price * obj.quantity
+            return f"{total} ₽"
+        return "—"
+    get_total_price.short_description = 'общая стоимость'
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = [
+        'pk',
+        'firstname',
+        'lastname',
+        'phonenumber',
+        'created_at'
+    ]
+    list_display_links = ['pk', 'firstname']
+    search_fields = [
+        'firstname',
+        'lastname',
+        'phonenumber',
+        'address'
+    ]
+    list_filter = ['created_at']
+    readonly_fields = ['created_at']
+    inlines = [OrderItemInline]
+
+    fieldsets = (
+        ('Контактная информация', {
+            'fields': [
+                'firstname',
+                'lastname',
+                'phonenumber',
+                'address'
+            ]
+        }),
+        ('Служебная информация', {
+            'fields': ['created_at'],
+            'classes': ['collapse']
+        }),
+    )
