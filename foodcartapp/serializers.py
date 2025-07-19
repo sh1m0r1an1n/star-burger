@@ -15,6 +15,22 @@ class OrderItemSerializer(serializers.Serializer):
         return value
 
 
+class OrderItemReadSerializer(serializers.ModelSerializer):
+    product = serializers.StringRelatedField()
+    
+    class Meta:
+        model = OrderItem
+        fields = ['product', 'quantity']
+
+
+class OrderReadSerializer(serializers.ModelSerializer):
+    products = OrderItemReadSerializer(source='items', many=True, read_only=True)
+    
+    class Meta:
+        model = Order
+        fields = ['id', 'firstname', 'lastname', 'phonenumber', 'address', 'created_at', 'products']
+
+
 class OrderSerializer(serializers.Serializer):
     firstname = serializers.CharField(max_length=50)
     lastname = serializers.CharField(max_length=50)

@@ -7,7 +7,7 @@ from rest_framework import status
 from phonenumber_field.phonenumber import to_python
 
 from .models import Product, Order, OrderItem
-from .serializers import OrderSerializer
+from .serializers import OrderSerializer, OrderReadSerializer
 
 
 @api_view(['GET'])
@@ -81,4 +81,5 @@ def register_order(request):
                 quantity=product_data['quantity']
             )
     
-    return Response({'status': 'success'})
+    order_serializer = OrderReadSerializer(order)
+    return Response(order_serializer.data)
