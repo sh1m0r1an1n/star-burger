@@ -71,7 +71,7 @@ def view_products(request):
 
     products_with_restaurant_availability = []
     for product in products:
-        availability = {item.restaurant_id: item.availability for item in product.menu_items.all()}
+        availability = {item.restaurant_id: item.availability for item in product.menu_items}
         ordered_availability = [availability.get(restaurant.id, False) for restaurant in restaurants]
 
         products_with_restaurant_availability.append(
@@ -87,7 +87,7 @@ def view_products(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_restaurants(request):
     return render(request, template_name="restaurants_list.html", context={
-        'restaurants': Restaurant.objects.all(),
+        'restaurants': Restaurant.objects.order_by('name'),
     })
 
 
