@@ -4,6 +4,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 from .models import Product, Order, OrderItem
 
@@ -60,6 +61,32 @@ def product_list_api(request):
 def register_order(request):
     order_data = request.data
     
+    if 'products' not in order_data:
+        return Response(
+            {'products': 'Обязательное поле.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    products = order_data['products']
+    
+    if products is None:
+        return Response(
+            {'products': 'Это поле не может быть пустым.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if not isinstance(products, list):
+        return Response(
+            {'products': f'Ожидался list со значениями, но был получен "{type(products).__name__}".'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if len(products) == 0:
+        return Response(
+            {'products': 'Этот список не может быть пустым.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
     print(order_data)
     
     with transaction.atomic():
@@ -70,7 +97,7 @@ def register_order(request):
             address=order_data['address']
         )
         
-        for product_data in order_data['products']:
+        for product_data in products:
             product = get_object_or_404(Product, id=product_data['product'])
             OrderItem.objects.create(
                 order=order,
