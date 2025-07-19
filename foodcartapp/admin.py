@@ -146,6 +146,7 @@ class OrderAdmin(admin.ModelAdmin):
         'lastname',
         'phonenumber',
         'status',
+        'payment_method',
         'comment',
         'created_at',
         'called_at',
@@ -172,7 +173,7 @@ class OrderAdmin(admin.ModelAdmin):
             ]
         }),
         ('Статус заказа', {
-            'fields': ['status']
+            'fields': ['status', 'payment_method']
         }),
         ('Комментарий', {
             'fields': ['comment'],

@@ -142,6 +142,11 @@ class Order(models.Model):
         ('completed', 'Выполнен'),
     ]
     
+    PAYMENT_CHOICES = [
+        ('online', 'Онлайн'),
+        ('cash', 'Наличными'),
+    ]
+    
     firstname = models.CharField(
         'имя',
         max_length=50
@@ -162,6 +167,12 @@ class Order(models.Model):
         max_length=20,
         choices=STATUS_CHOICES,
         default='new',
+    )
+    payment_method = models.CharField(
+        'способ оплаты',
+        max_length=20,
+        choices=PAYMENT_CHOICES,
+        default='online',
     )
     created_at = models.DateTimeField(
         'время создания',
@@ -194,6 +205,7 @@ class Order(models.Model):
         indexes = [
             models.Index(fields=['phonenumber']),
             models.Index(fields=['status']),
+            models.Index(fields=['payment_method']),
             models.Index(fields=['called_at']),
             models.Index(fields=['delivered_at']),
         ]

@@ -18,6 +18,7 @@
       <th>Телефон</th>
       <th>Адрес доставки</th>
       <th>Статус</th>
+      <th>Способ оплаты</th>
       <th>Стоимость заказа</th>
       <th>Комментарий</th>
       <th>Действия</th>
@@ -30,6 +31,7 @@
         <td>{{ order.phonenumber }}</td>
         <td>{{ order.address }}</td>
         <td>{{ order.get_status_display }}</td>
+        <td>{{ order.get_payment_method_display }}</td>
         <td>{{ order.total_cost|floatformat:2 }} ₽</td>
         <td>
           <span class="text-muted">{{ order.comment|truncatechars:50|default:"—" }}</span>
