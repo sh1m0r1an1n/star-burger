@@ -19,6 +19,7 @@
       <th>Адрес доставки</th>
       <th>Статус</th>
       <th>Способ оплаты</th>
+      <th>Ресторан</th>
       <th>Стоимость заказа</th>
       <th>Комментарий</th>
       <th>Действия</th>
@@ -32,6 +33,22 @@
         <td>{{ order.address }}</td>
         <td>{{ order.get_status_display }}</td>
         <td>{{ order.get_payment_method_display }}</td>
+        <td>
+          {% if order.restaurant %}
+            <strong>{{ order.restaurant.name }}</strong>
+          {% else %}
+            <details>
+              <summary>Рестораны ({{ order.available_restaurants|length }})</summary>
+              <ul class="list-unstyled">
+                {% for restaurant in order.available_restaurants %}
+                  <li>{{ restaurant.name }}</li>
+                {% empty %}
+                  <li class="text-danger">Нет доступных ресторанов</li>
+                {% endfor %}
+              </ul>
+            </details>
+          {% endif %}
+        </td>
         <td>{{ order.total_cost|floatformat:2 }} ₽</td>
         <td>
           <span class="text-muted">{{ order.comment|truncatechars:50|default:"—" }}</span>

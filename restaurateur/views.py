@@ -94,6 +94,9 @@ def view_restaurants(request):
 def view_orders(request):
     orders = Order.objects.with_total_cost().prefetch_related('items__product').exclude(status='completed').order_by('-created_at')
     
+    for order in orders:
+        order.available_restaurants = order.get_available_restaurants()
+    
     return render(request, template_name='order_items.html', context={
         'order_items': orders,
     })

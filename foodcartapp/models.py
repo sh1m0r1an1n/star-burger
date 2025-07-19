@@ -195,6 +195,15 @@ class Order(models.Model):
         blank=True,
         help_text='Дата и время доставки заказа'
     )
+    restaurant = models.ForeignKey(
+        Restaurant,
+        verbose_name='ресторан',
+        related_name='orders',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text='Ресторан, который будет готовить заказ'
+    )
 
     objects = OrderQuerySet.as_manager()
 
@@ -212,6 +221,28 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Заказ {self.pk} - {self.firstname} {self.lastname}"
+    
+    def get_available_restaurants(self):
+        """Возвращает список ресторанов, которые могут приготовить все продукты заказа"""
+        order_products = set(self.items.values_list('product_id', flat=True))
+    
+        restaurant_menu_items = RestaurantMenuItem.objects.filter(
+            availability=True
+        ).select_related('restaurant', 'product')
+        
+        restaurants_products = {}
+        for item in restaurant_menu_items:
+            if item.restaurant_id not in restaurants_products:
+                restaurants_products[item.restaurant_id] = set()
+            restaurants_products[item.restaurant_id].add(item.product_id)
+        
+        available_restaurants = [
+            Restaurant.objects.get(id=restaurant_id)
+            for restaurant_id, available_products in restaurants_products.items()
+            if order_products.issubset(available_products)
+        ]
+        
+        return available_restaurants
 
 
 class OrderItem(models.Model):

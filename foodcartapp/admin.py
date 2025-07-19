@@ -147,6 +147,7 @@ class OrderAdmin(admin.ModelAdmin):
         'phonenumber',
         'status',
         'payment_method',
+        'restaurant',
         'comment',
         'created_at',
         'called_at',
@@ -182,6 +183,9 @@ class OrderAdmin(admin.ModelAdmin):
         ('Даты выполнения', {
             'fields': ['called_at', 'delivered_at'],
             'classes': ['wide']
+        }),
+        ('Ресторан', {
+            'fields': ['restaurant'],
         }),
         ('Служебная информация', {
             'fields': ['created_at'],
