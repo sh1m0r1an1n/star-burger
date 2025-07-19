@@ -1,39 +1,10 @@
-import requests
 from geopy.distance import geodesic
-from django.conf import settings
-from functools import lru_cache
+from geocoder_cache.services import get_coordinates_from_cache
 
 
-@lru_cache(maxsize=1000)
 def get_coordinates(address):
-    """Получает координаты по адресу"""
-    if not settings.YANDEX_GEOCODER_API_KEY:
-        return None
-        
-    try:
-        params = {
-            'apikey': settings.YANDEX_GEOCODER_API_KEY,
-            'format': 'json',
-            'geocode': address,
-            'lang': 'ru_RU'
-        }
-        
-        response = requests.get(settings.YANDEX_GEOCODER_BASE_URL, params=params, timeout=5)
-        response.raise_for_status()
-        
-        data = response.json()
-        feature_member = data['response']['GeoObjectCollection']['featureMember']
-        
-        if not feature_member:
-            return None
-            
-        coords_str = feature_member[0]['GeoObject']['Point']['pos']
-        longitude, latitude = map(float, coords_str.split())
-        
-        return latitude, longitude
-        
-    except (requests.RequestException, KeyError, ValueError):
-        return None
+    """Получает координаты по адресу из кэша или API"""
+    return get_coordinates_from_cache(address)
 
 
 def get_restaurant_distances(delivery_address, restaurants):

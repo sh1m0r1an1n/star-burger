@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from foodcartapp.models import Restaurant
-from foodcartapp.services import get_coordinates
+from geocoder_cache.services import get_coordinates_from_cache
 
 
 class Command(BaseCommand):
@@ -11,7 +11,7 @@ class Command(BaseCommand):
         
         for restaurant in restaurants:
             if not restaurant.latitude or not restaurant.longitude:
-                coords = get_coordinates(restaurant.address)
+                coords = get_coordinates_from_cache(restaurant.address)
                 if coords:
                     restaurant.latitude, restaurant.longitude = coords
                     restaurant.save()
