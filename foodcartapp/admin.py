@@ -145,6 +145,7 @@ class OrderAdmin(admin.ModelAdmin):
         'firstname',
         'lastname',
         'phonenumber',
+        'status',
         'created_at'
     ]
     list_display_links = ['pk', 'firstname']
@@ -154,7 +155,7 @@ class OrderAdmin(admin.ModelAdmin):
         'phonenumber',
         'address'
     ]
-    list_filter = ['created_at']
+    list_filter = ['status', 'created_at']
     readonly_fields = ['created_at']
     inlines = [OrderItemInline]
 
@@ -166,6 +167,9 @@ class OrderAdmin(admin.ModelAdmin):
                 'phonenumber',
                 'address'
             ]
+        }),
+        ('Статус заказа', {
+            'fields': ['status']
         }),
         ('Служебная информация', {
             'fields': ['created_at'],

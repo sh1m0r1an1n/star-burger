@@ -4,7 +4,7 @@
 
 {% block content %}
   <center>
-    <h2>Необработанные заказы</h2>
+    <h2>Новые заказы</h2>
   </center>
 
   <hr/>
@@ -17,6 +17,7 @@
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
+      <th>Статус</th>
       <th>Стоимость заказа</th>
       <th>Действия</th>
     </tr>
@@ -27,6 +28,7 @@
         <td>{{ order.firstname }} {{ order.lastname }}</td>
         <td>{{ order.phonenumber }}</td>
         <td>{{ order.address }}</td>
+        <td>{{ order.get_status_display }}</td>
         <td>{{ order.total_cost|floatformat:2 }} ₽</td>
         <td>
           <a href="{% url 'admin:foodcartapp_order_change' object_id=order.id %}?next={{ request.path }}">

@@ -134,6 +134,14 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
+    STATUS_CHOICES = [
+        ('new', 'Новый'),
+        ('confirmed', 'Подтверждён'),
+        ('preparing', 'Готовится'),
+        ('delivering', 'В пути'),
+        ('completed', 'Выполнен'),
+    ]
+    
     firstname = models.CharField(
         'имя',
         max_length=50
@@ -149,6 +157,12 @@ class Order(models.Model):
         'адрес доставки',
         max_length=200
     )
+    status = models.CharField(
+        'статус',
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='new',
+    )
     created_at = models.DateTimeField(
         'время создания',
         auto_now_add=True
@@ -162,6 +176,7 @@ class Order(models.Model):
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['phonenumber']),
+            models.Index(fields=['status']),
         ]
 
     def __str__(self):
