@@ -38,10 +38,18 @@
             <strong>{{ order.restaurant.name }}</strong>
           {% else %}
             <details>
-              <summary>Рестораны ({{ order.available_restaurants|length }})</summary>
+              <summary>Рестораны ({{ order.restaurant_distances|default:order.available_restaurants|length }})</summary>
               <ul class="list-unstyled">
-                {% for restaurant in order.available_restaurants %}
-                  <li>{{ restaurant.name }}</li>
+                {% for restaurant, distance in order.restaurant_distances|default:order.available_restaurants %}
+                  <li>
+                    <strong>{{ restaurant.name }}</strong>
+                    {% if restaurant.address %}
+                      <br><small class="text-muted">{{ restaurant.address }}</small>
+                    {% endif %}
+                    {% if distance %}
+                      <br><span class="text-info">Расстояние: {{ distance }} км</span>
+                    {% endif %}
+                  </li>
                 {% empty %}
                   <li class="text-danger">Нет доступных ресторанов</li>
                 {% endfor %}

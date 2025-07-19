@@ -123,3 +123,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),
     os.path.join(BASE_DIR, "bundles"),
 ]
+
+YANDEX_GEOCODER_API_KEY = env('YANDEX_GEOCODER_API_KEY')
+YANDEX_GEOCODER_BASE_URL = 'https://geocode-maps.yandex.ru/1.x/'

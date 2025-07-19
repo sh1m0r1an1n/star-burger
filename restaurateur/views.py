@@ -9,6 +9,7 @@ from django.contrib.auth import views as auth_views
 
 
 from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.services import get_restaurant_distances
 
 
 class Login(forms.Form):
@@ -92,10 +93,25 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.with_total_cost().prefetch_related('items__product').exclude(status='completed').order_by('-created_at')
+    orders = (
+        Order.objects
+        .with_total_cost()
+        .prefetch_related('items__product')
+        .select_related('restaurant')
+        .exclude(status='completed')
+        .order_by('-created_at')
+    )
     
     for order in orders:
         order.available_restaurants = order.get_available_restaurants()
+        
+        if order.available_restaurants:
+            order.restaurant_distances = get_restaurant_distances(
+                order.address, 
+                order.available_restaurants
+            )
+        else:
+            order.restaurant_distances = []
     
     return render(request, template_name='order_items.html', context={
         'order_items': orders,

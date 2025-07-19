@@ -20,6 +20,16 @@ class Restaurant(models.Model):
         max_length=50,
         blank=True,
     )
+    latitude = models.FloatField(
+        'широта',
+        null=True,
+        blank=True,
+    )
+    longitude = models.FloatField(
+        'долгота',
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         verbose_name = 'ресторан'
@@ -226,21 +236,29 @@ class Order(models.Model):
         """Возвращает список ресторанов, которые могут приготовить все продукты заказа"""
         order_products = set(self.items.values_list('product_id', flat=True))
     
-        restaurant_menu_items = RestaurantMenuItem.objects.filter(
-            availability=True
-        ).select_related('restaurant', 'product')
+        restaurant_menu_items = (
+            RestaurantMenuItem.objects
+            .filter(availability=True)
+            .select_related('restaurant')
+            .values('restaurant_id', 'product_id')
+        )
         
         restaurants_products = {}
         for item in restaurant_menu_items:
-            if item.restaurant_id not in restaurants_products:
-                restaurants_products[item.restaurant_id] = set()
-            restaurants_products[item.restaurant_id].add(item.product_id)
+            restaurant_id = item['restaurant_id']
+            if restaurant_id not in restaurants_products:
+                restaurants_products[restaurant_id] = set()
+            restaurants_products[restaurant_id].add(item['product_id'])
         
-        available_restaurants = [
-            Restaurant.objects.get(id=restaurant_id)
+        available_restaurant_ids = [
+            restaurant_id 
             for restaurant_id, available_products in restaurants_products.items()
             if order_products.issubset(available_products)
         ]
+        
+        available_restaurants = list(
+            Restaurant.objects.filter(id__in=available_restaurant_ids)
+        )
         
         return available_restaurants
 
