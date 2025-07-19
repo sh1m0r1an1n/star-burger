@@ -1,7 +1,5 @@
 import requests
 from django.conf import settings
-from django.utils import timezone
-from datetime import timedelta
 from .models import GeocoderCache
 
 
@@ -15,9 +13,8 @@ def get_coordinates_from_cache(address):
     try:
         cached_result = GeocoderCache.objects.get(address=normalized_address)
         
-        if cached_result.requested_at > timezone.now() - timedelta(days=30):
-            if cached_result.latitude is not None and cached_result.longitude is not None:
-                return cached_result.latitude, cached_result.longitude
+        if cached_result.latitude is not None and cached_result.longitude is not None:
+            return cached_result.latitude, cached_result.longitude
     except GeocoderCache.DoesNotExist:
         pass
     
