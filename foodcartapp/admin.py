@@ -147,7 +147,9 @@ class OrderAdmin(admin.ModelAdmin):
         'phonenumber',
         'status',
         'comment',
-        'created_at'
+        'created_at',
+        'called_at',
+        'delivered_at'
     ]
     list_display_links = ['pk', 'firstname']
     search_fields = [
@@ -174,6 +176,10 @@ class OrderAdmin(admin.ModelAdmin):
         }),
         ('Комментарий', {
             'fields': ['comment'],
+            'classes': ['wide']
+        }),
+        ('Даты выполнения', {
+            'fields': ['called_at', 'delivered_at'],
             'classes': ['wide']
         }),
         ('Служебная информация', {

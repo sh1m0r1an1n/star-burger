@@ -172,6 +172,18 @@ class Order(models.Model):
         blank=True,
         help_text='Комментарий к заказу (аллергии, особые пожелания и т.д.)'
     )
+    called_at = models.DateTimeField(
+        'дата звонка',
+        null=True,
+        blank=True,
+        help_text='Дата и время звонка клиенту'
+    )
+    delivered_at = models.DateTimeField(
+        'дата доставки',
+        null=True,
+        blank=True,
+        help_text='Дата и время доставки заказа'
+    )
 
     objects = OrderQuerySet.as_manager()
 
@@ -182,6 +194,8 @@ class Order(models.Model):
         indexes = [
             models.Index(fields=['phonenumber']),
             models.Index(fields=['status']),
+            models.Index(fields=['called_at']),
+            models.Index(fields=['delivered_at']),
         ]
 
     def __str__(self):
