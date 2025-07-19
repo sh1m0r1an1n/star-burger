@@ -32,4 +32,5 @@ if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [
         path(r'__debug__/', include(debug_toolbar.urls)),
+        path('api-auth/', include('rest_framework.urls'))
     ] + urlpatterns
