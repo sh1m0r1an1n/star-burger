@@ -182,7 +182,8 @@ class Order(models.Model):
         'способ оплаты',
         max_length=20,
         choices=PAYMENT_CHOICES,
-        default='online',
+        blank=True,
+        null=True,
     )
     created_at = models.DateTimeField(
         'время создания',
