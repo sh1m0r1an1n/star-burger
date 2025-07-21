@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import GeocoderCache
+from .models import GeoPlace
 
 
-@admin.register(GeocoderCache)
-class GeocoderCacheAdmin(admin.ModelAdmin):
+@admin.register(GeoPlace)
+class GeoPlaceAdmin(admin.ModelAdmin):
     list_display = ['address', 'latitude', 'longitude', 'requested_at']
     list_filter = ['requested_at']
     search_fields = ['address']

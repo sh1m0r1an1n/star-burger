@@ -1,8 +1,8 @@
 from django.db import models
 
 
-class GeocoderCache(models.Model):
-    """Кэш для хранения ответов геокодера"""
+class GeoPlace(models.Model):
+    """Географическое место с адресом и координатами"""
     
     address = models.CharField(
         'адрес',
@@ -25,8 +25,8 @@ class GeocoderCache(models.Model):
     )
 
     class Meta:
-        verbose_name = 'кэш геокодера'
-        verbose_name_plural = 'кэш геокодера'
+        verbose_name = 'географическое место'
+        verbose_name_plural = 'географические места'
         indexes = [
             models.Index(fields=['address']),
             models.Index(fields=['requested_at']),

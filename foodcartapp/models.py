@@ -21,7 +21,7 @@ class Restaurant(models.Model):
         blank=True,
     )
     location = models.OneToOneField(
-        'geocoder_cache.GeocoderCache',
+        'geocoder_cache.GeoPlace',
         verbose_name='координаты',
         null=True,
         blank=True,

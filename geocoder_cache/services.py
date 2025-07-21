@@ -1,6 +1,6 @@
 import requests
 from django.conf import settings
-from .models import GeocoderCache
+from .models import GeoPlace
 
 
 def get_coordinates_from_cache(address):
@@ -11,16 +11,16 @@ def get_coordinates_from_cache(address):
     normalized_address = ' '.join(address.split())
     
     try:
-        cached_result = GeocoderCache.objects.get(address=normalized_address)
+        cached_result = GeoPlace.objects.get(address=normalized_address)
         
         if cached_result.latitude is not None and cached_result.longitude is not None:
             return cached_result.latitude, cached_result.longitude
-    except GeocoderCache.DoesNotExist:
+    except GeoPlace.DoesNotExist:
         pass
     
     coords = _get_coordinates_from_api(normalized_address)
     
-    GeocoderCache.objects.update_or_create(
+    GeoPlace.objects.update_or_create(
         address=normalized_address,
         defaults={
             'latitude': coords[0] if coords else None,

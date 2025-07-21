@@ -1,5 +1,5 @@
 from geopy.distance import geodesic
-from geocoder_cache.models import GeocoderCache
+from geocoder_cache.models import GeoPlace
 from geocoder_cache.services import get_coordinates_from_cache
 
 
@@ -13,7 +13,7 @@ def get_restaurant_distances(delivery_address, restaurants):
     """Получает расстояния от адреса доставки до всех ресторанов"""
     distances = []
     restaurant_addresses = set(r.address for r in restaurants if r.address)
-    cache_qs = GeocoderCache.objects.filter(address__in=restaurant_addresses)
+    cache_qs = GeoPlace.objects.filter(address__in=restaurant_addresses)
     cache_by_address = {obj.address: obj for obj in cache_qs}
 
     delivery_coords = get_coordinates_from_cache(delivery_address)
