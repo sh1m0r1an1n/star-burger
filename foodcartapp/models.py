@@ -20,15 +20,13 @@ class Restaurant(models.Model):
         max_length=50,
         blank=True,
     )
-    latitude = models.FloatField(
-        'широта',
+    location = models.OneToOneField(
+        'geocoder_cache.GeocoderCache',
+        verbose_name='координаты',
         null=True,
         blank=True,
-    )
-    longitude = models.FloatField(
-        'долгота',
-        null=True,
-        blank=True,
+        on_delete=models.SET_NULL,
+        help_text='Координаты ресторана (широта/долгота)'
     )
 
     class Meta:

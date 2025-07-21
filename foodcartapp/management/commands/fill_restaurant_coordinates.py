@@ -10,10 +10,14 @@ class Command(BaseCommand):
         restaurants = Restaurant.objects.filter(address__isnull=False).exclude(address='')
         
         for restaurant in restaurants:
-            if not restaurant.latitude or not restaurant.longitude:
+            if not restaurant.location:
                 coords = get_coordinates_from_cache(restaurant.address)
                 if coords:
-                    restaurant.latitude, restaurant.longitude = coords
+                    from geocoder_cache.models import GeocoderCache
+                    cache_obj, _ = GeocoderCache.objects.get_or_create(address=restaurant.address)
+                    cache_obj.latitude, cache_obj.longitude = coords
+                    cache_obj.save()
+                    restaurant.location = cache_obj
                     restaurant.save()
                     self.stdout.write(
                         self.style.SUCCESS(f'Координаты для {restaurant.name}: {coords}')

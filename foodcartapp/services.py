@@ -18,10 +18,9 @@ def get_restaurant_distances(delivery_address, restaurants):
     for restaurant in restaurants:
         if not restaurant.address:
             continue
-            
-        if restaurant.latitude and restaurant.longitude:
+        if restaurant.location and restaurant.location.latitude is not None and restaurant.location.longitude is not None:
             try:
-                restaurant_coords = (restaurant.latitude, restaurant.longitude)
+                restaurant_coords = (restaurant.location.latitude, restaurant.location.longitude)
                 distance = geodesic(delivery_coords, restaurant_coords).kilometers
                 distances.append((restaurant, round(distance, 2)))
             except ValueError:
