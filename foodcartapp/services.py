@@ -32,7 +32,9 @@ def get_restaurant_distances(delivery_address, restaurants):
                     distance = geodesic(delivery_coords, restaurant_coords).kilometers
                     distances.append((restaurant, round(distance, 2)))
                 except ValueError:
-                    continue
+                    distances.append((restaurant, None))
+            else:
+                distances.append((restaurant, None))
     
     distances.sort(key=lambda x: x[1])
     return distances 

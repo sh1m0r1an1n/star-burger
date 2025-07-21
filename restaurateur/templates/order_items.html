@@ -48,6 +48,8 @@
                     {% endif %}
                     {% if distance %}
                       <br><span class="text-info">Расстояние: {{ distance }} км</span>
+                    {% else %}
+                      <br><span class="text-danger">Адрес не найден</span>
                     {% endif %}
                   </li>
                 {% empty %}
