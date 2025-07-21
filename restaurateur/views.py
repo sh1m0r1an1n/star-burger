@@ -102,9 +102,9 @@ def view_orders(request):
         .order_by('-created_at')
     )
     
+    order_available_restaurants = orders.with_available_restaurants()
     for order in orders:
-        order.available_restaurants = order.get_available_restaurants()
-        
+        order.available_restaurants = order_available_restaurants.get(order.id, [])
         if order.available_restaurants:
             order.restaurant_distances = get_restaurant_distances(
                 order.address, 

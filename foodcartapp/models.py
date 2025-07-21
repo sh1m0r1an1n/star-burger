@@ -142,6 +142,34 @@ class OrderQuerySet(models.QuerySet):
             total_cost=Sum(F('items__quantity') * F('items__price'))
         )
 
+    def with_available_restaurants(self):
+        """Возвращает словарь: order_id -> список доступных ресторанов для всех заказов QuerySet"""
+        order_products_map = {}
+        order_items = (
+            OrderItem.objects
+            .filter(order__in=self)
+            .values('order_id', 'product_id')
+        )
+        for item in order_items:
+            order_products_map.setdefault(item['order_id'], set()).add(item['product_id'])
+
+        menu_items = RestaurantMenuItem.objects.filter(availability=True).values('restaurant_id', 'product_id')
+        restaurants_products = {}
+        for item in menu_items:
+            restaurants_products.setdefault(item['restaurant_id'], set()).add(item['product_id'])
+
+        order_available_restaurants = {}
+        for order_id, order_products in order_products_map.items():
+            available_restaurant_ids = [
+                restaurant_id
+                for restaurant_id, available_products in restaurants_products.items()
+                if order_products.issubset(available_products)
+            ]
+            order_available_restaurants[order_id] = list(
+                Restaurant.objects.filter(id__in=available_restaurant_ids)
+            )
+        return order_available_restaurants
+
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -232,36 +260,6 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Заказ {self.pk} - {self.firstname} {self.lastname}"
-    
-    def get_available_restaurants(self):
-        """Возвращает список ресторанов, которые могут приготовить все продукты заказа"""
-        order_products = set(self.items.values_list('product_id', flat=True))
-    
-        restaurant_menu_items = (
-            RestaurantMenuItem.objects
-            .filter(availability=True)
-            .select_related('restaurant')
-            .values('restaurant_id', 'product_id')
-        )
-        
-        restaurants_products = {}
-        for item in restaurant_menu_items:
-            restaurant_id = item['restaurant_id']
-            if restaurant_id not in restaurants_products:
-                restaurants_products[restaurant_id] = set()
-            restaurants_products[restaurant_id].add(item['product_id'])
-        
-        available_restaurant_ids = [
-            restaurant_id 
-            for restaurant_id, available_products in restaurants_products.items()
-            if order_products.issubset(available_products)
-        ]
-        
-        available_restaurants = list(
-            Restaurant.objects.filter(id__in=available_restaurant_ids)
-        )
-        
-        return available_restaurants
 
 
 class OrderItem(models.Model):
