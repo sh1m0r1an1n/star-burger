@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import F, Sum
 from decimal import Decimal
+from collections import defaultdict
 
 
 class Restaurant(models.Model):
@@ -133,32 +134,20 @@ class OrderQuerySet(models.QuerySet):
         )
 
     def with_available_restaurants(self):
-        """Возвращает словарь: order_id -> список доступных ресторанов для всех заказов QuerySet"""
-        order_products_map = {}
-        order_items = (
-            OrderItem.objects
-            .filter(order__in=self)
-            .values('order_id', 'product_id')
-        )
-        for item in order_items:
-            order_products_map.setdefault(item['order_id'], set()).add(item['product_id'])
-
-        menu_items = RestaurantMenuItem.objects.filter(availability=True).values('restaurant_id', 'product_id')
-        restaurants_products = {}
+        """Добавляет к каждому заказу список ресторанов, которые могут выполнить заказ. Возвращает self."""
+        menu_items = RestaurantMenuItem.objects.filter(availability=True).select_related('restaurant', 'product')
+        restaurants_products = defaultdict(set)
         for item in menu_items:
-            restaurants_products.setdefault(item['restaurant_id'], set()).add(item['product_id'])
+            restaurants_products[item.restaurant].add(item.product)
 
-        order_available_restaurants = {}
-        for order_id, order_products in order_products_map.items():
-            available_restaurant_ids = [
-                restaurant_id
-                for restaurant_id, available_products in restaurants_products.items()
-                if order_products.issubset(available_products)
-            ]
-            order_available_restaurants[order_id] = list(
-                Restaurant.objects.filter(id__in=available_restaurant_ids)
-            )
-        return order_available_restaurants
+        for order in self:
+            order_products = set(order.items.values_list('product', flat=True))
+            available_restaurants = []
+            for restaurant, products in restaurants_products.items():
+                if order_products.issubset(products):
+                    available_restaurants.append(restaurant)
+            order.available_restaurants = available_restaurants
+        return self
 
 
 class Order(models.Model):
