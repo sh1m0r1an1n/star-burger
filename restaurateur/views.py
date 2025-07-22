@@ -10,6 +10,7 @@ from django.contrib.auth import views as auth_views
 from foodcartapp.models import Product, Restaurant, Order
 from foodcartapp.services import get_restaurant_distances
 from geocoder_cache.models import GeoPlace
+from geocoder_cache.services import get_coordinates_from_cache
 
 
 class Login(forms.Form):
@@ -113,15 +114,15 @@ def view_orders(request):
     order_addresses = {a for a in order_addresses if a}
 
     restaurant_coords = {}
-    if restaurant_addresses:
-        for obj in GeoPlace.objects.filter(address__in=restaurant_addresses):
-            if obj.latitude is not None and obj.longitude is not None:
-                restaurant_coords[obj.address] = (obj.latitude, obj.longitude)
+    for address in restaurant_addresses:
+        coords = get_coordinates_from_cache(address)
+        if coords:
+            restaurant_coords[address] = coords
     order_coords = {}
-    if order_addresses:
-        for obj in GeoPlace.objects.filter(address__in=order_addresses):
-            if obj.latitude is not None and obj.longitude is not None:
-                order_coords[obj.address] = (obj.latitude, obj.longitude)
+    for address in order_addresses:
+        coords = get_coordinates_from_cache(address)
+        if coords:
+            order_coords[address] = coords
 
     for order in orders:
         if order.available_restaurants:
