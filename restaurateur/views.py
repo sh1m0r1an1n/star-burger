@@ -7,9 +7,9 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
-
 from foodcartapp.models import Product, Restaurant, Order
 from foodcartapp.services import get_restaurant_distances
+from geocoder_cache.models import GeoPlace
 
 
 class Login(forms.Form):
@@ -101,18 +101,39 @@ def view_orders(request):
         .exclude(status='completed')
         .order_by('-created_at')
     )
-    
-    order_available_restaurants = orders.with_available_restaurants()
+    orders = orders.with_available_restaurants()
+
+    all_restaurants = set()
+    order_addresses = set()
     for order in orders:
-        order.available_restaurants = order_available_restaurants.get(order.id, [])
+        order_addresses.add(order.address)
+        for restaurant in order.available_restaurants:
+            all_restaurants.add(restaurant)
+    restaurant_addresses = {r.address for r in all_restaurants if r.address}
+    order_addresses = {a for a in order_addresses if a}
+
+    restaurant_coords = {}
+    if restaurant_addresses:
+        for obj in GeoPlace.objects.filter(address__in=restaurant_addresses):
+            if obj.latitude is not None and obj.longitude is not None:
+                restaurant_coords[obj.address] = (obj.latitude, obj.longitude)
+    order_coords = {}
+    if order_addresses:
+        for obj in GeoPlace.objects.filter(address__in=order_addresses):
+            if obj.latitude is not None and obj.longitude is not None:
+                order_coords[obj.address] = (obj.latitude, obj.longitude)
+
+    for order in orders:
         if order.available_restaurants:
             order.restaurant_distances = get_restaurant_distances(
-                order.address, 
-                order.available_restaurants
+                order.address,
+                order.available_restaurants,
+                restaurant_coords,
+                order_coords
             )
         else:
             order.restaurant_distances = []
-    
+
     return render(request, template_name='order_items.html', context={
         'order_items': orders,
     })
