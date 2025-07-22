@@ -20,14 +20,6 @@ class Restaurant(models.Model):
         max_length=50,
         blank=True,
     )
-    location = models.OneToOneField(
-        'geocoder_cache.GeoPlace',
-        verbose_name='координаты',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        help_text='Координаты ресторана (широта/долгота)'
-    )
 
     class Meta:
         verbose_name = 'ресторан'
