@@ -175,7 +175,7 @@ class Order(models.Model):
     phonenumber = PhoneNumberField(
         'номер телефона'
     )
-    address = models.TextField(
+    address = models.CharField(
         'адрес доставки',
         max_length=200
     )
