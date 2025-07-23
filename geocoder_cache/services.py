@@ -3,32 +3,44 @@ from django.conf import settings
 from .models import GeoPlace
 
 
-def get_coordinates_from_cache(address):
-    """Получает координаты из кэша или API"""
+def get_coordinates_batch(addresses):
+    """Возвращает словарь {адрес: (lat, lng)}, берет координаты из БД или API Яндекса."""
+    if not addresses:
+        return {}
+    
     if not settings.YANDEX_GEOCODER_API_KEY:
-        return None
+        return {}
     
-    normalized_address = ' '.join(address.split())
+    normalized_addresses = [' '.join(addr.split()) for addr in addresses if addr]
     
-    try:
-        cached_result = GeoPlace.objects.get(address=normalized_address)
+    existing_places = GeoPlace.objects.filter(address__in=normalized_addresses)
+    coordinates = {}
+    
+    for place in existing_places:
+        if place.latitude is not None and place.longitude is not None:
+            coordinates[place.address] = (place.latitude, place.longitude)
+    
+    existing_addresses = {place.address for place in existing_places}
+    missing_addresses = [addr for addr in normalized_addresses if addr not in existing_addresses]
+    
+    for address in missing_addresses:
+        coords = _get_coordinates_from_api(address)
         
-        if cached_result.latitude is not None and cached_result.longitude is not None:
-            return cached_result.latitude, cached_result.longitude
-    except GeoPlace.DoesNotExist:
-        pass
+        GeoPlace.objects.update_or_create(
+            address=address,
+            defaults={
+                'latitude': coords[0] if coords else None,
+                'longitude': coords[1] if coords else None,
+            }
+        )
+        
+        if coords:
+            coordinates[address] = coords
     
-    coords = _get_coordinates_from_api(normalized_address)
-    
-    GeoPlace.objects.update_or_create(
-        address=normalized_address,
-        defaults={
-            'latitude': coords[0] if coords else None,
-            'longitude': coords[1] if coords else None,
-        }
-    )
-    
-    return coords
+    return coordinates
+
+
+
 
 
 def _get_coordinates_from_api(address):
