@@ -141,7 +141,7 @@ class OrderQuerySet(models.QuerySet):
             restaurants_products[item.restaurant].add(item.product)
 
         for order in self:
-            order_products = set(order.items.values_list('product', flat=True))
+            order_products = set(order_item.product for order_item in order.items.select_related('product'))
             available_restaurants = []
             for restaurant, products in restaurants_products.items():
                 if order_products.issubset(products):
