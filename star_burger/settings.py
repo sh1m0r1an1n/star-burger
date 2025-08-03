@@ -1,4 +1,6 @@
 import os
+import rollbar
+import rollbar.contrib.django
 
 import dj_database_url
 
@@ -17,6 +19,15 @@ DEBUG = env.bool('DEBUG', True)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
+ROLLBAR = {
+    'access_token': env('ROLLBAR_ACCESS_TOKEN', default=''),
+    'environment': env('ROLLBAR_ENVIRONMENT', default='development'),
+    'branch': env('ROLLBAR_BRANCH', default='main'),
+    'root': BASE_DIR,
+}
+
+rollbar.init(**ROLLBAR)
+
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
     'restaurateur.apps.RestaurateurConfig',
@@ -28,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'rest_framework'
+    'rest_framework',
+    'rollbar.contrib.django',
 ]
 
 MIDDLEWARE = [
@@ -40,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'

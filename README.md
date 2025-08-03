@@ -64,6 +64,13 @@ SECRET_KEY=django-insecure-0if40nf4nf93n4
 YANDEX_GEOCODER_API_KEY=ваш-ключ-от-яндекс
 ```
 
+Для работы системы логирования ошибок Rollbar добавьте следующие переменные в файл `.env`:
+```sh
+ROLLBAR_ACCESS_TOKEN=ваш-токен-rollbar
+ROLLBAR_ENVIRONMENT=development
+ROLLBAR_BRANCH=main
+```
+
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
 
 ```sh
@@ -153,6 +160,9 @@ Parcel будет следить за файлами в каталоге `bundle
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/5.2/ref/settings/#allowed-hosts)
 - `YANDEX_GEOCODER_API_KEY` — API ключ для Yandex геокодера. Используется для определения расстояний между адресами доставки и ресторанами. Получить можно на [странице разработчика Yandex](https://developer.tech.yandex.ru/).
+- `ROLLBAR_ACCESS_TOKEN` — токен для системы логирования ошибок Rollbar. Получить можно на [rollbar.com](https://rollbar.com).
+- `ROLLBAR_ENVIRONMENT` — окружение для Rollbar (production, staging, development).
+- `ROLLBAR_BRANCH` — название ветки Git (main, master, develop).
 
 ## Архитектура проекта
 
