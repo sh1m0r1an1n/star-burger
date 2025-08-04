@@ -54,24 +54,49 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-Определите переменную окружения `SECRET_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
-```sh
-SECRET_KEY=django-insecure-0if40nf4nf93n4
-```
+Определите переменные окружения. Создайте файл `.env` в корне проекта и добавьте туда следующие настройки:
 
-Также для работы автоматического выбора ближайшего ресторана требуется API-ключ Яндекс Геокодера. Добавьте его в этот же файл `.env`:
 ```sh
-YANDEX_GEOCODER_API_KEY=ваш-ключ-от-яндекс
+SECRET_KEY=
+DEBUG=
+ALLOWED_HOSTS=
+YANDEX_GEOCODER_API_KEY=
+DATABASE_URL=
 ```
 
 Для работы системы логирования ошибок Rollbar добавьте следующие переменные в файл `.env`:
 ```sh
-ROLLBAR_ACCESS_TOKEN=ваш-токен-rollbar
-ROLLBAR_ENVIRONMENT=development
-ROLLBAR_BRANCH=main
+ROLLBAR_ACCESS_TOKEN=
+ROLLBAR_ENVIRONMENT=
+ROLLBAR_BRANCH=
 ```
 
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+### Установка PostgreSQL
+
+1. **Установите PostgreSQL** с официального сайта: https://www.postgresql.org/download/
+
+2. **Создайте базу данных и пользователя**:
+```sql
+-- Подключитесь к PostgreSQL как пользователь postgres
+psql -U postgres
+
+-- Создание пользователя
+CREATE USER star_burger_user WITH PASSWORD 'star_burger_password';
+
+-- Создание базы данных
+CREATE DATABASE star_burger_db OWNER star_burger_user;
+
+-- Предоставление прав
+GRANT ALL PRIVILEGES ON DATABASE star_burger_db TO star_burger_user;
+
+-- Подключение к новой базе данных
+\c star_burger_db
+
+-- Предоставление прав на схему
+GRANT ALL ON SCHEMA public TO star_burger_user;
+```
+
+Примените миграции к базе данных:
 
 ```sh
 python manage.py migrate
