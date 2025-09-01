@@ -2,6 +2,8 @@
 
 Это сайт сети ресторанов Star Burger. Здесь можно заказать превосходные бургеры с доставкой на дом.
 
+[Рабочая версия сайта](https://burger-star.ru/)
+
 ![демонстрация работы сайта](docs/demo.gif)
 
 
@@ -173,21 +175,19 @@ Parcel будет следить за файлами в каталоге `bundle
 
 ## Как запустить prod-версию сайта
 
-Собрать фронтенд:
+### Краткая инструкция по деплою
 
-```sh
-./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
-```
+1. **Подготовка сервера**: Установить Python 3.6+, Node.js 16.x, PostgreSQL, Nginx
+2. **Настройка проекта**: Скопировать код, установить зависимости, собрать фронтенд
+3. **База данных**: Создать пользователя и базу данных PostgreSQL
+4. **Окружение**: Создать файл `star_burger/.env` с настройками
+5. **Сервисы**: Настроить systemd сервисы и Nginx
+6. **SSL**: Установить сертификаты Let's Encrypt
+7. **Автоматизация**: Настроить автоматическое обновление
 
-Настроить бэкенд: создать файл `.env` в каталоге `star_burger/` со следующими настройками:
+**Автоматический деплой**: Используйте скрипт `deploy_star_burger.sh` для быстрого обновления кода.
 
-- `DEBUG` — дебаг-режим. Поставьте `False`.
-- `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
-- `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/5.2/ref/settings/#allowed-hosts)
-- `YANDEX_GEOCODER_API_KEY` — API ключ для Yandex геокодера. Используется для определения расстояний между адресами доставки и ресторанами. Получить можно на [странице разработчика Yandex](https://developer.tech.yandex.ru/).
-- `ROLLBAR_ACCESS_TOKEN` — токен для системы логирования ошибок Rollbar. Получить можно на [rollbar.com](https://rollbar.com).
-- `ROLLBAR_ENVIRONMENT` — окружение для Rollbar (production, staging, development).
-- `ROLLBAR_BRANCH` — название ветки Git (main, master, develop).
+Подробная инструкция по деплою находится в файле [`deployment_instructions.md`](deployment_instructions.md).
 
 ## Архитектура проекта
 

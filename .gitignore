@@ -143,3 +143,6 @@ dmypy.json
 cython_debug/
 
 .parcel-cache/
+# Конфиденциальные данные деплоя
+deployment_secrets.md
+
