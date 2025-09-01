@@ -402,6 +402,68 @@ systemctl start starburger-clearsessions.timer
 
 ---
 
+## 🔧 Если порт 80 заблокирован провайдером
+
+### Получение SSL-сертификата с DNS-01 challenge
+
+```bash
+# Вместо HTTP-01 используйте DNS-01 challenge
+certbot certonly --manual --preferred-challenges=dns -d burger-star.ru -d www.burger-star.ru
+```
+
+**Процесс:**
+1. Certbot генерирует TXT-запись для `_acme-challenge.burger-star.ru`
+2. Добавьте эту запись в DNS панели домена
+3. Certbot проверяет запись и выдает сертификат
+4. Никакого доступа к порту 80 не требуется
+
+### Автоматическое обновление с DNS-01
+
+**⚠️ Внимание:** Полная автоматизация DNS-01 требует интеграции с DNS API провайдера. Для ручного управления используйте:
+
+```bash
+# Создание сервиса с ручным подтверждением
+cat > /etc/systemd/system/certbot-renewal.service << 'EOF'
+[Unit]
+Description=Certbot Renewal with DNS-01 Challenge
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/certbot renew --preferred-challenges=dns --quiet --no-random-sleep-on-renew
+ExecStartPost=/bin/systemctl reload nginx.service
+User=root
+Group=root
+Restart=no
+RestartSec=0
+EOF
+
+# Таймер для еженедельного запуска
+cat > /etc/systemd/system/certbot-renewal.timer << 'EOF'
+[Unit]
+Description=Timer for Certbot Renewal
+Requires=certbot-renewal.service
+
+[Timer]
+OnBootSec=300
+OnUnitActiveSec=1w
+RandomizedDelaySec=3600
+
+[Install]
+WantedBy=timers.target
+EOF
+
+# Активация
+systemctl daemon-reload
+systemctl enable certbot-renewal.timer
+systemctl start certbot-renewal.timer
+```
+
+**Для полной автоматизации** потребуется:
+- DNS API токен от провайдера домена
+- Плагин certbot для вашего DNS провайдера
+- Настройка автоматического добавления TXT-записей
+
 ## ✅ Проверка работы
 
 ### Быстрая проверка всех сервисов
