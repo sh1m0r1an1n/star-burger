@@ -15,12 +15,6 @@ source venv/bin/activate
 echo "📦 Устанавливаем Python зависимости..."
 pip install -r requirements.txt
 
-echo "📦 Устанавливаем Node.js зависимости..."
-npm install parcel --no-audit --no-fund
-
-echo "🔨 Собираем фронтенд..."
-./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
-
 echo "📁 Собираем статические файлы Django..."
 python manage.py collectstatic --noinput
 
@@ -31,6 +25,7 @@ echo "🔄 Перезапускаем сервисы..."
 systemctl restart star-burger.service
 
 echo "📊 Уведомляем Rollbar о деплое..."
+export $(grep -v '^#' star_burger/.env | xargs)
 COMMIT_HASH=$(git rev-parse HEAD)
 curl -X POST "https://api.rollbar.com/api/1/deploy/" \
   -H "Content-Type: application/json" \
@@ -43,4 +38,4 @@ curl -X POST "https://api.rollbar.com/api/1/deploy/" \
   }"
 
 echo "✅ Деплой завершен успешно!"
-echo "🌐 Сайт доступен по адресу: http://burger-star.ru"
+echo "🌐 Сайт доступен по адресу: https://burger-star.ru"
