@@ -149,4 +149,6 @@ deployment_secrets.md
 data_utf8_fixed.json
 pscp.exe
 star_burger_dump.sql
+staticfiles/
+star-burger-products-master/
 
