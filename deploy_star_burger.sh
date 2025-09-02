@@ -7,7 +7,7 @@ echo "🚀 Начинаем деплой Star Burger..."
 cd /opt/star-burger
 
 echo "📥 Обновляем код из репозитория..."
-git pull origin main
+git pull origin master
 
 echo "🐍 Активируем виртуальное окружение..."
 source venv/bin/activate
