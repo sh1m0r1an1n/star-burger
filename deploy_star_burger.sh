@@ -16,7 +16,7 @@ echo "📦 Устанавливаем Python зависимости..."
 pip install -r requirements.txt
 
 echo "📦 Устанавливаем Node.js зависимости..."
-npm ci --dev
+npm install --production=false
 
 echo "🔨 Собираем фронтенд..."
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
