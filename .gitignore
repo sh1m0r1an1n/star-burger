@@ -151,4 +151,5 @@ pscp.exe
 star_burger_dump.sql
 staticfiles/
 star-burger-products-master/
+gunicorn.conf.py
 
