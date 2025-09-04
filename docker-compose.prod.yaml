@@ -38,12 +38,8 @@ services:
     image: nginx:alpine
     ports:
       - "80:80"
-      - "443:443"
-    cap_add:
-      - NET_BIND_SERVICE
     volumes:
-      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/nginx.prod.http.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/media:ro
     depends_on:
