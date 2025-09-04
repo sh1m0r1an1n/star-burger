@@ -1,0 +1,22 @@
+FROM node:16.16.0-alpine
+
+WORKDIR /app
+
+# Копирование package.json
+COPY package*.json ./
+
+# Установка зависимостей
+RUN npm ci --only=production
+
+# Копирование исходного кода
+COPY bundles-src/ ./bundles-src/
+
+# Сборка фронтенда
+RUN npx parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
+
+# Создание пользователя (используем другой UID)
+RUN adduser -D -u 1001 nodeuser && chown -R nodeuser:nodeuser /app
+USER nodeuser
+
+# Команда для разработки (watch mode)
+CMD ["npx", "parcel", "watch", "bundles-src/index.js", "--dist-dir", "bundles", "--public-url", "./"]
