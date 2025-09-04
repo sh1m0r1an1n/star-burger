@@ -1,5 +1,8 @@
-bundles/*
-!bundles/.gitkeep
+# bundles/*
+# !bundles/.gitkeep
+bundles/*.map
+bundles/.parcel-cache/
+.parcel-cache/
 node_modules/
 # media/
 .idea
