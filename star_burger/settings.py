@@ -19,6 +19,17 @@ DEBUG = env.bool('DEBUG', True)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
+# Настройки для работы за прокси (Nginx)
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', [
+    'https://burger-star.ru',
+    'https://www.burger-star.ru',
+    'http://45.131.42.195'
+])
+
+# Исправление CSRF для работы за прокси
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', False)
+
 ROLLBAR = {
     'access_token': env('ROLLBAR_ACCESS_TOKEN', default=''),
     'environment': env('ROLLBAR_ENVIRONMENT', default='development'),

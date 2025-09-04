@@ -418,11 +418,12 @@ http {
 
 ### 2.4 Создание .env файла для продакшна
 
-Создайте файл `.env.prod`:
+Создайте файл `.env`:
 
 ```env
 SECRET_KEY=your-super-secret-key-here
 ALLOWED_HOSTS=your-domain.com,www.your-domain.com,your-server-ip
+CSRF_TRUSTED_ORIGINS=https://your-domain.com,https://www.your-domain.com,http://your-server-ip
 POSTGRES_PASSWORD=your-secure-postgres-password
 YANDEX_GEOCODER_API_KEY=your-yandex-api-key
 ROLLBAR_ACCESS_TOKEN=your-rollbar-token
@@ -475,9 +476,9 @@ cd /opt/star-burger
 git clone https://github.com/sh1m0r1an1n/star-burger.git .
 
 # Создание файла с переменными окружения
-cp .env.prod.example .env.prod
-# Отредактируйте .env.prod с вашими настройками
-nano .env.prod
+cp .env.example .env
+# Отредактируйте .env с вашими настройками
+nano .env
 
 # Установка прав на выполнение для скрипта деплоя
 chmod +x deploy.sh
@@ -534,7 +535,7 @@ docker-compose -f docker-compose.prod.yaml restart nginx
 
 # Уведомление Rollbar о деплое
 echo "📊 Уведомляем Rollbar о деплое..."
-export $(grep -v '^#' .env.prod | xargs)
+export $(grep -v '^#' .env | xargs)
 COMMIT_HASH=$(git rev-parse HEAD)
 curl -X POST "https://api.rollbar.com/api/1/deploy/" \
   -H "Content-Type: application/json" \
@@ -661,8 +662,8 @@ docker-compose exec backend python manage.py createsuperuser
 
 ```bash
 # Настройка переменных окружения
-cp .env.prod.example .env.prod
-# Отредактируйте .env.prod с вашими настройками
+cp .env.example .env
+# Отредактируйте .env с вашими настройками
 
 # Запуск деплоя
 ./deploy.sh

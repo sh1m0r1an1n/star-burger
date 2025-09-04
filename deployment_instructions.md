@@ -110,6 +110,7 @@ nano star_burger/.env
 SECRET_KEY=your-secret-key-here
 DEBUG=False
 ALLOWED_HOSTS=your-server-ip,localhost,127.0.0.1,your-domain.com,www.your-domain.com
+CSRF_TRUSTED_ORIGINS=https://your-domain.com,https://www.your-domain.com,http://your-server-ip
 YANDEX_GEOCODER_API_KEY=your-yandex-api-key
 ROLLBAR_ACCESS_TOKEN=your-token-here
 ROLLBAR_ENVIRONMENT=production
