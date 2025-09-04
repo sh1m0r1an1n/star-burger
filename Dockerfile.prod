@@ -47,6 +47,14 @@ COPY --from=builder /app /app
 # Создание пользователя
 RUN useradd -m -u 1002 django && chown -R django:django /app
 
+# Проверяем и копируем медиа файлы если они есть
+RUN if [ -d "/app/media" ] && [ "$(ls -A /app/media)" ]; then \
+        echo "Медиа файлы найдены"; \
+    else \
+        echo "Медиа файлы не найдены, создаем пустую директорию"; \
+        mkdir -p /app/media; \
+    fi
+
 USER django
 
 EXPOSE 8000
