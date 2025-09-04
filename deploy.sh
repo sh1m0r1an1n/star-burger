@@ -37,7 +37,7 @@ docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py shel
 echo "📊 Загружаем данные из JSON..."
 docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py loaddata data_utf8_fixed.json || echo "Данные уже загружены"
 
-echo "📁 Проверяем статические файлы..."
+echo "📁 Собираем статические файлы в volume..."
 docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py collectstatic --noinput
 
 echo "🔧 Настраиваем SSL сертификаты..."

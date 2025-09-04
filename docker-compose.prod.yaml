@@ -27,7 +27,6 @@ services:
       - ROLLBAR_BRANCH=${ROLLBAR_BRANCH}
     volumes:
       - media_volume:/app/media
-      - static_volume:/app/staticfiles
     depends_on:
       - db
     restart: unless-stopped
