@@ -26,14 +26,10 @@ services:
       - ROLLBAR_BRANCH=${ROLLBAR_BRANCH}
     volumes:
       - media_volume:/app/media
-      - static_volume:/app/staticfiles
     depends_on:
       - db
     restart: unless-stopped
-    command: >
-      sh -c "cp -r /app/media/* /app/media_volume/ 2>/dev/null || true &&
-             cp -r /app/staticfiles/* /app/staticfiles/ 2>/dev/null || true &&
-             gunicorn --bind 0.0.0.0:8000 --workers 3 star_burger.wsgi:application"
+    command: gunicorn --bind 0.0.0.0:8000 --workers 3 star_burger.wsgi:application
 
   nginx:
     image: nginx:alpine
@@ -41,7 +37,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx/nginx.prod.http.conf:/etc/nginx/nginx.conf:ro
-      - static_volume:/app/staticfiles:ro
+      - ./bundles:/app/bundles:ro
       - media_volume:/app/media:ro
     depends_on:
       - backend
@@ -49,5 +45,4 @@ services:
 
 volumes:
   postgres_data:
-  static_volume:
   media_volume:
