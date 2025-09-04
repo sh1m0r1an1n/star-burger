@@ -30,6 +30,13 @@ sleep 10
 echo "🗄️ Применяем миграции..."
 docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py migrate
 
+echo "👤 Создаем суперпользователя..."
+docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py createsuperuser --noinput --username admin --email admin@gmail.com || echo "Суперпользователь уже существует"
+docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py shell -c "from django.contrib.auth.models import User; u = User.objects.get(username='admin'); u.set_password('admin'); u.save()" || echo "Пароль уже установлен"
+
+echo "📊 Загружаем данные из JSON..."
+docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py loaddata data_utf8_fixed.json || echo "Данные уже загружены"
+
 echo "📁 Проверяем статические файлы..."
 docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py collectstatic --noinput
 
@@ -51,3 +58,5 @@ curl -X POST "https://api.rollbar.com/api/1/deploy/" \
 
 echo "✅ Деплой завершен успешно!"
 echo "🌐 Сайт доступен по адресу: https://burger-star.ru"
+echo "🔗 IP адрес: http://45.131.42.195"
+echo "👤 Админка: https://burger-star.ru/admin/ (admin/admin)"
