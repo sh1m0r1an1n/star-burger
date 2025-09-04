@@ -32,7 +32,7 @@ services:
     restart: unless-stopped
     command: >
       sh -c "cp -r /app/media/* /app/media_volume/ 2>/dev/null || true &&
-             python manage.py collectstatic --noinput &&
+             cp -r /app/staticfiles/* /app/staticfiles/ 2>/dev/null || true &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 star_burger.wsgi:application"
 
   nginx:

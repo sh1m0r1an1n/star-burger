@@ -30,6 +30,9 @@ sleep 10
 echo "🗄️ Применяем миграции..."
 docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py migrate
 
+echo "📁 Проверяем статические файлы..."
+docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py collectstatic --noinput
+
 echo "🔄 Перезапускаем Nginx..."
 docker-compose -f docker-compose.prod.yaml restart nginx
 
