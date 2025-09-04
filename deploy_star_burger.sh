@@ -24,6 +24,9 @@ docker-compose -f docker-compose.prod.yaml build
 echo "▶️ Запускаем новые контейнеры..."
 docker-compose -f docker-compose.prod.yaml up -d
 
+echo "⏳ Ждем готовности базы данных..."
+sleep 10
+
 echo "🗄️ Применяем миграции..."
 docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py migrate
 

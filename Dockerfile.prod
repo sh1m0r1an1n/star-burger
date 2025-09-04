@@ -36,6 +36,10 @@ COPY --from=builder /app /app
 
 # Создание пользователя
 RUN useradd -m -u 1002 django && chown -R django:django /app
+
+# Создание директории для статических файлов с правильными правами
+RUN mkdir -p /app/staticfiles && chown -R django:django /app/staticfiles
+
 USER django
 
 EXPOSE 8000
