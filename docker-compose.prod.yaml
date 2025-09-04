@@ -26,6 +26,7 @@ services:
       - ROLLBAR_BRANCH=${ROLLBAR_BRANCH}
     volumes:
       - media_volume:/app/media
+      - static_volume:/app/staticfiles
     depends_on:
       - db
     restart: unless-stopped
@@ -38,6 +39,7 @@ services:
     volumes:
       - ./nginx/nginx.prod.http.conf:/etc/nginx/nginx.conf:ro
       - ./bundles:/app/bundles:ro
+      - static_volume:/app/staticfiles:ro
       - media_volume:/app/media:ro
     depends_on:
       - backend
@@ -45,4 +47,5 @@ services:
 
 volumes:
   postgres_data:
+  static_volume:
   media_volume:
