@@ -17,9 +17,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Копирование кода приложения
 COPY . .
 
-# Сборка статических файлов
-RUN python manage.py collectstatic --noinput
-
 # Финальный образ
 FROM python:3.11-slim
 
@@ -34,7 +31,7 @@ RUN apt-get update && apt-get install -y \
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
-# Копирование кода и статических файлов
+# Копирование кода
 COPY --from=builder /app /app
 
 # Создание пользователя

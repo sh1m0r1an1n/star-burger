@@ -9,23 +9,29 @@ cd /opt/star-burger
 echo "📥 Обновляем код из репозитория..."
 git pull origin master
 
-echo "🐍 Активируем виртуальное окружение..."
-source venv/bin/activate
+echo "🎨 Собираем фронтенд..."
+docker run --rm -v $(pwd):/app -w /app node:16.16.0-alpine sh -c "
+    npm ci --only=production
+    npx parcel build bundles-src/index.js --dist-dir bundles --public-url='./'
+"
 
-echo "📦 Устанавливаем Python зависимости..."
-pip install -r requirements.txt
+echo "🛑 Останавливаем старые контейнеры..."
+docker-compose -f docker-compose.prod.yaml down
 
-echo "📁 Собираем статические файлы Django..."
-python manage.py collectstatic --noinput
+echo "🔨 Собираем новые образы..."
+docker-compose -f docker-compose.prod.yaml build
+
+echo "▶️ Запускаем новые контейнеры..."
+docker-compose -f docker-compose.prod.yaml up -d
 
 echo "🗄️ Применяем миграции..."
-python manage.py migrate
+docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py migrate
 
-echo "🔄 Перезапускаем сервисы..."
-systemctl restart star-burger.service
+echo "🔄 Перезапускаем Nginx..."
+docker-compose -f docker-compose.prod.yaml restart nginx
 
 echo "📊 Уведомляем Rollbar о деплое..."
-export $(grep -v '^#' star_burger/.env | xargs)
+export $(grep -v '^#' /opt/star-burger/.env | xargs)
 COMMIT_HASH=$(git rev-parse HEAD)
 curl -X POST "https://api.rollbar.com/api/1/deploy/" \
   -H "Content-Type: application/json" \
@@ -34,7 +40,7 @@ curl -X POST "https://api.rollbar.com/api/1/deploy/" \
     \"environment\": \"$ROLLBAR_ENVIRONMENT\",
     \"revision\": \"$COMMIT_HASH\",
     \"local_username\": \"$(whoami)\",
-    \"comment\": \"Deploy from deploy_star_burger.sh\"
+    \"comment\": \"Docker deployment\"
   }"
 
 echo "✅ Деплой завершен успешно!"

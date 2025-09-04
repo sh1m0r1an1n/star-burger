@@ -439,6 +439,9 @@ ROLLBAR_ENVIRONMENT=production
 # Обновление системы
 sudo apt update && sudo apt upgrade -y
 
+# Установка необходимых пакетов
+sudo apt install -y curl wget git nano htop
+
 # Установка Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
@@ -450,8 +453,34 @@ sudo chmod +x /usr/local/bin/docker-compose
 # Добавление пользователя в группу docker
 sudo usermod -aG docker $USER
 
+# Создание директории проекта
+sudo mkdir -p /opt/star-burger
+sudo chown $USER:$USER /opt/star-burger
+
 # Перезагрузка для применения изменений
 sudo reboot
+```
+
+**После перезагрузки:**
+
+```bash
+# Проверка установки Docker
+docker --version
+docker-compose --version
+
+# Переход в директорию проекта
+cd /opt/star-burger
+
+# Клонирование репозитория
+git clone https://github.com/sh1m0r1an1n/star-burger.git .
+
+# Создание файла с переменными окружения
+cp .env.prod.example .env.prod
+# Отредактируйте .env.prod с вашими настройками
+nano .env.prod
+
+# Установка прав на выполнение для скрипта деплоя
+chmod +x deploy.sh
 ```
 
 ### 3.2 Создание скрипта деплоя
@@ -470,11 +499,11 @@ cd /opt/star-burger
 
 # Обновление кода из репозитория
 echo "📥 Обновляем код из репозитория..."
-git pull origin main
+git pull origin master
 
 # Сборка фронтенда
 echo "🎨 Собираем фронтенд..."
-docker run --rm -v $(pwd):/app -w /app node:17-alpine sh -c "
+docker run --rm -v $(pwd):/app -w /app node:16.16.0-alpine sh -c "
     npm ci --only=production
     npx parcel build bundles-src/index.js --dist-dir bundles --public-url='./'
 "
@@ -518,7 +547,7 @@ curl -X POST "https://api.rollbar.com/api/1/deploy/" \
   }"
 
 echo "✅ Деплой завершен успешно!"
-echo "🌐 Сайт доступен по адресу: https://your-domain.com"
+echo "🌐 Сайт доступен по адресу: https://burger-star.ru"
 ```
 
 ### 3.3 Настройка SSL сертификатов
@@ -528,7 +557,7 @@ echo "🌐 Сайт доступен по адресу: https://your-domain.com"
 sudo apt install certbot
 
 # Получение сертификата
-sudo certbot certonly --standalone -d your-domain.com -d www.your-domain.com
+sudo certbot certonly --standalone -d burger-star.ru -d www.burger-star.ru
 
 # Копирование сертификатов в папку nginx
 sudo mkdir -p /opt/star-burger/nginx/ssl
