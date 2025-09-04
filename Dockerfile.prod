@@ -40,6 +40,9 @@ RUN useradd -m -u 1002 django && chown -R django:django /app
 # Создание директории для статических файлов с правильными правами
 RUN mkdir -p /app/staticfiles && chown -R django:django /app/staticfiles
 
+# Создание директории для медиа файлов
+RUN mkdir -p /app/media && chown -R django:django /app/media
+
 USER django
 
 EXPOSE 8000

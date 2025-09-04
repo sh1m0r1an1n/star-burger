@@ -31,7 +31,8 @@ services:
       - db
     restart: unless-stopped
     command: >
-      sh -c "python manage.py collectstatic --noinput &&
+      sh -c "cp -r /app/media/* /app/media_volume/ 2>/dev/null || true &&
+             python manage.py collectstatic --noinput &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 star_burger.wsgi:application"
 
   nginx:
