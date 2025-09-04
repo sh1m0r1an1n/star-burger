@@ -1,0 +1,14 @@
+[Unit]
+Description=Certbot Renewal for Star Burger
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/certbot renew --manual --preferred-challenges dns \
+  -d burger-star.ru -d www.burger-star.ru --force-renewal
+ExecStartPost=/bin/cp /etc/letsencrypt/live/burger-star.ru/fullchain.pem /opt/star-burger/nginx/ssl/
+ExecStartPost=/bin/cp /etc/letsencrypt/live/burger-star.ru/privkey.pem /opt/star-burger/nginx/ssl/
+ExecStartPost=/bin/chown root:root /opt/star-burger/nginx/ssl/*
+ExecStartPost=/bin/chmod 644 /opt/star-burger/nginx/ssl/*
+ExecStartPost=/usr/local/bin/docker-compose -f /opt/star-burger/docker-compose.prod.yaml restart nginx
+User=root

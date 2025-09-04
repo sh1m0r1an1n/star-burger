@@ -40,8 +40,28 @@ docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py load
 echo "📁 Проверяем статические файлы..."
 docker-compose -f docker-compose.prod.yaml exec -T backend python manage.py collectstatic --noinput
 
+echo "🔧 Настраиваем SSL сертификаты..."
+mkdir -p nginx/ssl
+if [ -f /etc/letsencrypt/live/burger-star.ru/fullchain.pem ]; then
+    echo "📋 Копируем существующие SSL сертификаты..."
+    sudo cp /etc/letsencrypt/live/burger-star.ru/fullchain.pem nginx/ssl/
+    sudo cp /etc/letsencrypt/live/burger-star.ru/privkey.pem nginx/ssl/
+    sudo chown root:root nginx/ssl/*
+    sudo chmod 644 nginx/ssl/*
+else
+    echo "⚠️ SSL сертификаты не найдены. Получите их вручную:"
+    echo "sudo certbot certonly --manual --preferred-challenges dns -d burger-star.ru -d www.burger-star.ru"
+fi
+
 echo "🔄 Перезапускаем Nginx..."
 docker-compose -f docker-compose.prod.yaml restart nginx
+
+echo "🔧 Настраиваем автоматическое обновление SSL..."
+sudo cp systemd/certbot-renewal.service /etc/systemd/system/
+sudo cp systemd/certbot-renewal.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable certbot-renewal.timer
+sudo systemctl start certbot-renewal.timer
 
 echo "📊 Уведомляем Rollbar о деплое..."
 export $(grep -v '^#' /opt/star-burger/.env | xargs)

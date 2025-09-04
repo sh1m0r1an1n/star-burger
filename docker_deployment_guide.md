@@ -550,39 +550,76 @@ echo "✅ Деплой завершен успешно!"
 echo "🌐 Сайт доступен по адресу: https://burger-star.ru"
 ```
 
-### 3.3 Настройка SSL сертификатов
+### 3.3 Настройка SSL сертификатов (DNS Challenge)
 
 ```bash
 # Установка Certbot
 sudo apt install certbot
 
-# Получение сертификата
-sudo certbot certonly --standalone -d burger-star.ru -d www.burger-star.ru
+# Получение сертификата через DNS challenge (когда 80 порт заблокирован)
+sudo certbot certonly --manual --preferred-challenges dns \
+  -d burger-star.ru \
+  -d www.burger-star.ru
+
+# Certbot попросит добавить TXT запись в DNS:
+# _acme-challenge.www.burger-star.ru → [значение из certbot]
+# 
+# После добавления записи подождите 10-15 минут для распространения DNS
+# Затем нажмите Enter для продолжения
 
 # Копирование сертификатов в папку nginx
 sudo mkdir -p /opt/star-burger/nginx/ssl
-sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem /opt/star-burger/nginx/ssl/
-sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem /opt/star-burger/nginx/ssl/
+sudo cp /etc/letsencrypt/live/burger-star.ru/fullchain.pem /opt/star-burger/nginx/ssl/
+sudo cp /etc/letsencrypt/live/burger-star.ru/privkey.pem /opt/star-burger/nginx/ssl/
 sudo chown -R $USER:$USER /opt/star-burger/nginx/ssl/
 ```
 
-### 3.4 Автоматическое обновление SSL
+### 3.4 Автоматическое обновление SSL (Systemd Timer)
 
-Создайте файл `renew-ssl.sh`:
+**⚠️ Важно:** Manual сертификаты не обновляются автоматически. Нужно настроить systemd timer.
+
+#### Автоматическая настройка через скрипт деплоя:
+
+Файлы systemd уже включены в репозиторий:
+- `systemd/certbot-renewal.service` - сервис для обновления сертификатов
+- `systemd/certbot-renewal.timer` - таймер для запуска раз в неделю
+
+Скрипт `deploy.sh` автоматически устанавливает и активирует systemd файлы.
+
+**Важно:** Systemd сервисы работают на хосте, а не в Docker контейнерах. Они автоматически копируют обновленные сертификаты в проект и перезапускают Nginx контейнер.
+
+#### Ручная настройка (если нужно):
 
 ```bash
-#!/bin/bash
+# Копирование systemd файлов
+sudo cp systemd/certbot-renewal.service /etc/systemd/system/
+sudo cp systemd/certbot-renewal.timer /etc/systemd/system/
 
-# Обновление SSL сертификатов
-certbot renew --quiet
+# Перезагрузка systemd
+sudo systemctl daemon-reload
 
-# Копирование обновленных сертификатов
-cp /etc/letsencrypt/live/your-domain.com/fullchain.pem /opt/star-burger/nginx/ssl/
-cp /etc/letsencrypt/live/your-domain.com/privkey.pem /opt/star-burger/nginx/ssl/
+# Включение и запуск timer
+sudo systemctl enable certbot-renewal.timer
+sudo systemctl start certbot-renewal.timer
 
-# Перезапуск Nginx
-cd /opt/star-burger
-docker-compose -f docker-compose.prod.yaml restart nginx
+# Проверка статуса
+sudo systemctl status certbot-renewal.timer
+```
+
+#### Мониторинг и управление:
+
+```bash
+# Просмотр логов обновления
+sudo journalctl -u certbot-renewal.service
+
+# Ручной запуск обновления
+sudo systemctl start certbot-renewal.service
+
+# Проверка следующего запуска
+sudo systemctl list-timers certbot-renewal.timer
+
+# Отключение автоматического обновления
+sudo systemctl disable certbot-renewal.timer
 ```
 
 Настройте cron для автоматического обновления:
@@ -712,8 +749,14 @@ docker-compose exec backend python manage.py collectstatic --noinput
 # Проверка сертификатов
 openssl x509 -in nginx/ssl/fullchain.pem -text -noout
 
-# Обновление сертификатов
-./renew-ssl.sh
+# Обновление сертификатов (DNS challenge)
+certbot certonly --manual --preferred-challenges dns -d burger-star.ru -d www.burger-star.ru
+
+# Проверка статуса systemd timer
+systemctl status certbot-renewal.timer
+
+# Ручное обновление через systemd
+systemctl start certbot-renewal.service
 ```
 
 ---
@@ -791,9 +834,10 @@ jobs:
 
 ✅ **Продакшн деплой:**
 - Полная докеризация приложения
-- Автоматическое обновление SSL сертификатов
+- Автоматическое обновление SSL сертификатов через systemd timer
 - Сохранение данных в volumes
 - Автоматизация деплоя одним скриптом
+- Поддержка DNS challenge для SSL
 
 ✅ **Мониторинг:**
 - Просмотр логов всех сервисов
