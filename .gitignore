@@ -11,7 +11,6 @@ backend/static/bundles/*
 backend/static/bundles/*.map
 backend/static/staticfiles/
 backend/media/
-backend/.parcel-cache/
 
 # IDE
 .idea
