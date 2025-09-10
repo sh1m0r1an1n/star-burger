@@ -13,14 +13,16 @@ services:
       - "5432:5432"
 
   backend:
-    build: .
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://star_burger_user:star_burger_password@db:5432/star_burger_dev
       - SECRET_KEY=dev-secret-key-change-in-production
       - ALLOWED_HOSTS=localhost,127.0.0.1
     volumes:
-      - .:/app
+      - ./backend:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
     ports:
@@ -31,21 +33,21 @@ services:
 
   frontend:
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile.frontend
     volumes:
-      - ./bundles-src:/app/bundles-src
-      - ./bundles:/app/bundles
+      - ./frontend/src:/app/src
+      - ./backend/static/bundles:/app/bundles
     ports:
       - "1234:1234"
-    command: npx parcel watch bundles-src/index.js --dist-dir bundles --public-url="./" --host 0.0.0.0
+    command: npx parcel watch src/index.js --dist-dir bundles --public-url="./" --host 0.0.0.0
 
   nginx:
     image: nginx:alpine
     ports:
       - "8080:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/media:ro
     depends_on:

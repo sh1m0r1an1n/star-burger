@@ -1,11 +1,21 @@
-# bundles/*
-# !bundles/.gitkeep
-bundles/*.map
-bundles/.parcel-cache/
-.parcel-cache/
-node_modules/
-# media/
+# Frontend build artifacts
+frontend/bundles/*
+frontend/bundles/*.map
+frontend/bundles/.parcel-cache/
+frontend/.parcel-cache/
+frontend/node_modules/
+frontend/dist/
+
+# Backend static files
+backend/static/bundles/*
+backend/static/bundles/*.map
+backend/static/staticfiles/
+backend/media/
+backend/.parcel-cache/
+
+# IDE
 .idea
+.vscode/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -68,6 +78,8 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+backend/db.sqlite3
+backend/db.sqlite3-journal
 
 # Flask stuff:
 instance/
@@ -145,13 +157,20 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-.parcel-cache/
-# Конфиденциальные данные деплоя
-deployment_secrets.md
+# Docker
+.dockerignore
 
+# Deployment secrets
+deployment_secrets.md
+.env.prod
+.env.local
+
+# Temporary files
 pscp.exe
 star_burger_dump.sql
-staticfiles/
+backend/data_utf8_fixed.json
+
+# Old project structure (legacy)
 star-burger-products-master/
 gunicorn.conf.py
 

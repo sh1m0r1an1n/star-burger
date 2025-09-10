@@ -17,6 +17,18 @@
 
 ## Как запустить dev-версию сайта
 
+### Быстрый запуск с Docker (рекомендуется)
+
+```bash
+# Запуск всех сервисов
+docker-compose up --build
+
+# Применение миграций (в отдельном терминале)
+docker-compose exec backend python manage.py migrate
+```
+
+### Ручной запуск
+
 Для запуска сайта нужно запустить **одновременно** бэкенд и фронтенд, в двух терминалах.
 
 ### Как собрать бэкенд
@@ -215,6 +227,24 @@ cp .env.example .env
 **Примечание**: При первом запуске скрипт автоматически создаст суперпользователя (admin/admin) и загрузит тестовые данные. При последующих деплоях эти операции пропускаются.
 
 Подробная инструкция по Docker деплою находится в файле [`docker_deployment_guide.md`](docker_deployment_guide.md).
+
+## Docker Architecture
+
+**Development (`docker-compose.yaml`):**
+- Все сервисы в контейнерах с hot reload
+- Frontend: Node.js + Parcel watch режим
+- Backend: Django dev-сервер
+- Nginx: проксирует запросы между сервисами
+
+**Production (`docker-compose.prod.yaml`):**
+- Frontend: статические файлы через Nginx
+- Backend: Django + Gunicorn WSGI сервер
+- Nginx: отдает статику и проксирует API
+
+**Dockerfile структура:**
+- `backend/Dockerfile` - dev версия с Django dev-сервером
+- `backend/Dockerfile.prod` - prod версия с multi-stage build и Gunicorn
+- `frontend/Dockerfile.frontend` - только для dev (watch режим)
 
 ## Архитектура проекта
 
