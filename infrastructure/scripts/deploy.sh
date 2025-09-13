@@ -9,12 +9,6 @@ cd /opt/star-burger
 echo "📥 Обновляем код из репозитория..."
 git pull origin master
 
-echo "🎨 Собираем фронтенд..."
-docker run --rm -v $(pwd)/frontend:/app -w /app node:16.16.0-alpine sh -c "
-    npm ci --only=production
-    npx parcel build src/index.js --dist-dir ../backend/static/bundles --public-url='./'
-"
-
 echo "🛑 Останавливаем старые контейнеры..."
 docker-compose -f docker-compose.prod.yaml down
 

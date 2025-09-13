@@ -232,19 +232,22 @@ cp .env.example .env
 
 **Development (`docker-compose.yaml`):**
 - Все сервисы в контейнерах с hot reload
-- Frontend: Node.js + Parcel watch режим
-- Backend: Django dev-сервер
-- Nginx: проксирует запросы между сервисами
+- Frontend: Node.js + Parcel watch режим (контейнер frontend)
+- Backend: Django dev-сервер (контейнер backend)
+- Nginx: проксирует запросы между сервисами (контейнер nginx)
 
 **Production (`docker-compose.prod.yaml`):**
-- Frontend: статические файлы через Nginx
-- Backend: Django + Gunicorn WSGI сервер
-- Nginx: отдает статику и проксирует API
+- Frontend: Node.js контейнер собирает статические файлы (контейнер frontend)
+- Backend: Django + Gunicorn WSGI сервер (контейнер backend)
+- Nginx: отдает статику и проксирует API (контейнер nginx)
+
+> **Преимущества фронтенд контейнера в продакшене:** Консистентная архитектура, возможность масштабирования, готовность к SSR, автоматическая сборка при деплое.
 
 **Dockerfile структура:**
 - `backend/Dockerfile` - dev версия с Django dev-сервером
 - `backend/Dockerfile.prod` - prod версия с multi-stage build и Gunicorn
-- `frontend/Dockerfile.frontend` - только для dev (watch режим)
+- `frontend/Dockerfile.frontend` - dev версия с Parcel watch режимом
+- `frontend/Dockerfile.prod` - prod версия собирает статические файлы
 
 ## Архитектура проекта
 

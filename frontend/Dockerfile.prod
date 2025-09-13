@@ -1,0 +1,22 @@
+FROM node:16.16.0-alpine
+
+WORKDIR /app
+
+# Копирование package.json
+COPY package*.json ./
+
+# Установка зависимостей
+RUN npm ci --only=production
+
+# Копирование исходного кода
+COPY src/ ./src/
+
+# Сборка фронтенда для продакшена
+RUN npx parcel build src/index.js --dist-dir bundles --public-url="./"
+
+# Создание пользователя
+RUN adduser -D -u 1001 nodeuser && chown -R nodeuser:nodeuser /app
+USER nodeuser
+
+# Команда для продакшена - просто держим контейнер живым
+CMD ["tail", "-f", "/dev/null"]
